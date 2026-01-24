@@ -1,0 +1,56 @@
+End-to-End Procedure
+RL-Based Smart Cloud Autoscaling (SIMULATED)
+
+
+You are building only 3 components:
+1.Fake Cloud (Environment)
+2.RL Brain (Agent)
+3.Screen (Dashboard)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+rl-autoscaling/
+│
+├── env/
+│   └── cloud_env.py        # Fake cloud + Gym environment
+│
+├── agents/
+│   └── train_agent.py     # PPO / DQN training
+│
+├── dashboard/
+│   └── app.py             # Streamlit dashboard
+│
+├── baseline/
+│   └── rule_based.py      # If-else scaling (baseline)
+│
+├── utils/
+│   └── metrics.py         # Logging & plotting helpers
+│
+├── requirements.txt
+└── README.md
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🟢 DAY 1 — BUILD THE FAKE CLOUD (NO AI)
+🎯 Objective
+Create a cloud simulator where:
+Traffic changes
+CPU & latency respond
+Servers affect performance
+
+
+DAY 2 — RULE-BASED AUTOSCALING (BASELINE)
+🎯 Objective
+Prove scaling works without AI
+
+
+DAY 3 — CONVERT TO RL ENVIRONMENT (GYM)
+🎯 Objective
+Turn your simulator into something RL can control.
+
+
+DAY 4 — TRAIN RL AGENT (THE BRAIN)
+🎯 Objective
+Replace rules with learning
+
+DAY 5 — DASHBOARD (VISUAL PROOF)
+🎯 Objective
+Make it visually understandable
