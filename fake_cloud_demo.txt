@@ -1,0 +1,69 @@
+﻿======================================================================
+FAKE CLOUD ENVIRONMENT DEMONSTRATION
+======================================================================
+
+This simulates a cloud infrastructure with:
+  - Dynamic traffic patterns
+  - CPU utilization based on load
+  - Latency that increases with high CPU
+  - Ability to scale servers up/down
+
+======================================================================
+
+Initial State:
+Step: 0 | Servers: 3 | Traffic: 46 | CPU: 18.40% | Latency: 118.40ms
+
+----------------------------------------------------------------------
+Running 10 random scaling actions...
+----------------------------------------------------------------------
+
+Action: Scale Down
+Reward: -1.40 | Total Reward: -1.40
+Step: 1 | Servers: 2 | Traffic: 38 | CPU: 22.80% | Latency: 122.80ms
+
+Action: Do Nothing
+Reward: -1.40 | Total Reward: -2.80
+Step: 2 | Servers: 2 | Traffic: 33 | CPU: 19.80% | Latency: 119.80ms
+
+Action: Scale Down
+Reward: +1.80 | Total Reward: -1.00
+Step: 3 | Servers: 1 | Traffic: 39 | CPU: 46.80% | Latency: 146.80ms
+
+Action: Do Nothing
+Reward: +1.80 | Total Reward: +0.80
+Step: 4 | Servers: 1 | Traffic: 48 | CPU: 57.60% | Latency: 157.60ms
+
+Action: Scale Down
+Reward: +1.80 | Total Reward: +2.60
+Step: 5 | Servers: 1 | Traffic: 42 | CPU: 50.40% | Latency: 150.40ms
+
+Action: Scale Down
+Reward: +1.80 | Total Reward: +4.40
+Step: 6 | Servers: 1 | Traffic: 50 | CPU: 60.00% | Latency: 160.00ms
+
+Action: Scale Up
+Reward: -1.40 | Total Reward: +3.00
+Step: 7 | Servers: 2 | Traffic: 43 | CPU: 25.80% | Latency: 125.80ms
+
+Action: Scale Down
+Reward: +1.80 | Total Reward: +4.80
+Step: 8 | Servers: 1 | Traffic: 34 | CPU: 40.80% | Latency: 140.80ms
+
+Action: Do Nothing
+Reward: +1.80 | Total Reward: +6.60
+Step: 9 | Servers: 1 | Traffic: 41 | CPU: 49.20% | Latency: 149.20ms
+
+Action: Scale Up
+Reward: -1.40 | Total Reward: +5.20
+Step: 10 | Servers: 2 | Traffic: 31 | CPU: 18.60% | Latency: 118.60ms
+
+======================================================================
+Demo Complete! Total Reward: +5.20
+======================================================================
+
+Key Observations:
+  - When CPU is 40-70%: Good performance (positive reward)
+  - When CPU > 80%: SLA violation (penalty)
+  - More servers = Higher cost (penalty)
+  - The RL agent learns to balance performance vs cost!
+

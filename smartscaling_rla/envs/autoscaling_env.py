@@ -78,6 +78,8 @@ class AutoScalingEnv(gym.Env):
         Apply an action, advance the simulation by one time step, and
         return (state, reward, terminated, truncated, info).
         """
+        current_instances = self.instances
+
         # 1) Apply the scaling action
         if action == 0:  # scale down
             self.instances = max(self.config.min_instances, self.instances - 1)
@@ -89,8 +91,8 @@ class AutoScalingEnv(gym.Env):
         self.current_step += 1
         self.load = self._sample_load(self.current_step)
 
-        # 3) Compute reward based on new state
-        reward = self._compute_reward()
+        # 3) Compute reward based on new state and action taken
+        reward = self._compute_reward(action, current_instances)
 
         # 4) Episode termination condition
         terminated = False
@@ -102,6 +104,91 @@ class AutoScalingEnv(gym.Env):
             "load": self.load,
         }
         return state, float(reward), terminated, truncated, info
+
+    def _compute_reward(self, action: int, previous_instances: int) -> float:
+        """
+        Redesigned reward function to address:
+        1. Idle servers penalty
+        2. Action differentiation
+        3. Long-term cost optimization
+        """
+        utilization = self._utilization()
+
+        # --- COMPONENT 1: PERFORMANCE (Goldilocks Zone) ---
+        # Reward being in the optimal range (e.g., 50-80%)
+        # Sigmoid-like or Gaussian bell curve is often better, but step function is simple/clear
+        if 0.5 <= utilization <= 0.8:
+            perf_reward = 20.0  # Big bonus for being perfect
+        else:
+            # Penalize distance from target (0.7)
+            # Higher weight (-20) to ensure bad states are clearly distinguished
+            dist = abs(utilization - 0.7)
+            perf_reward = -20.0 * dist 
+
+        # --- COMPONENT 2: COST (Linear + Per-Step) ---
+        # Stronger penalty per server to minimize usage
+        # This addresses "ignores infrastructure cost"
+        cost_penalty = -2.0 * self.instances
+
+        # --- COMPONENT 3: SLA VIOLATION (Critical) ---
+        if utilization > 1.0:
+            # Huge penalty to prevent crashing
+            sla_penalty = -100.0 * (utilization - 1.0)
+        else:
+            sla_penalty = 0.0
+
+        # --- COMPONENT 4: IDLE RESOURCE PENALTY ---
+        # Explicitly address "fails to scale down when idle"
+        idle_penalty = 0.0
+        if utilization < 0.2 and self.instances > self.config.min_instances:
+            # If we are barely using the server but have more than minimum, punish heavily
+            idle_penalty = -10.0
+
+        # --- COMPONENT 5: ACTION PENALTIES ---
+        action_penalty = 0.0
+        
+        # A. Penalize "DO NOTHING" when action is needed (Crisis or Waste)
+        is_crisis = utilization > 0.9
+        is_waste = utilization < 0.3 and self.instances > self.config.min_instances
+        if action == 1 and (is_crisis or is_waste):
+            action_penalty -= 5.0 # Nudge the agent to ACT
+            
+        # B. Penalize Invalid/Ineffective Actions
+        # Trying to scale down below min
+        if action == 0 and previous_instances <= self.config.min_instances:
+            action_penalty -= 5.0
+        # Trying to scale up above max
+        if action == 2 and previous_instances >= self.config.max_instances:
+            action_penalty -= 5.0
+
+        # Total Reward = Sum of components
+        # We normalize slightly by checking the magnitude, but these values (10-100)
+        # provide good separation for Q-values.
+        # Total Base Reward
+        reward = perf_reward + cost_penalty + sla_penalty + idle_penalty + action_penalty
+        
+        # --- COMPONENT 6: FORCE SCALE DOWN (Immediate Incentive) ---
+        # REQUIRED FIX: Give immediate positive reward for scaling down when idle.
+        # We calculate "previous utilization" to see if the state we acted on was wasteful.
+        
+        # Use current load as proxy (since load is stochastic, this is close enough)
+        prev_capacity = max(1.0, previous_instances * self.config.base_load)
+        prev_util = self.load / prev_capacity
+
+        scaling_incentive = 0.0
+        
+        # Condition: We were idle (low util) and had servers to spare
+        if prev_util < 0.2 and previous_instances > self.config.min_instances:
+            if action == 0:
+                # IMMEDIATE REWARD for taking the right action
+                scaling_incentive = +15.0 
+            elif action == 1:
+                # EXPLICIT PENALTY for laziness
+                scaling_incentive = -15.0
+
+        # Final Total Reward
+        reward += scaling_incentive
+        return float(reward)
 
     def render(self):
         """
@@ -140,31 +227,6 @@ class AutoScalingEnv(gym.Env):
         """
         capacity = max(1.0, self.instances * self.config.base_load)
         return float(self.load / capacity)
-
-    def _compute_reward(self) -> float:
-        """
-        Reward is a combination of:
-          - penalty for being far from the target utilization
-          - penalty for using many instances (cost)
-          - large penalty for SLA violations (utilization >> 1)
-        """
-        utilization = self._utilization()
-
-        # Penalty for deviation from target utilization (quadratic)
-        deviation = utilization - self.config.target_utilization
-        penalty_deviation = deviation**2
-
-        # Cost grows linearly with number of instances
-        cost = self.instances * self.config.cost_per_instance
-
-        # SLA violation penalty if utilization is too high
-        sla_violation = max(0.0, utilization - 1.0)
-        penalty_sla = sla_violation * self.config.penalty_sla_violation
-
-        # We NEGATE because we want to maximize reward, but all components
-        # we computed are "bad".
-        reward = -penalty_deviation - cost - penalty_sla
-        return float(reward)
 
     def _get_state(self) -> np.ndarray:
         """

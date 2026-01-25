@@ -32,11 +32,11 @@ class EnvConfig:
 class QLearningConfig:
     """Hyperparameters for the tabular Q-learning agent."""
 
-    learning_rate: float = 0.1      # α
-    discount_factor: float = 0.95   # γ
+    learning_rate: float = 0.1      # alpha
+    discount_factor: float = 0.99   # gamma (increased for long-term optimization)
     epsilon_start: float = 1.0      # initial exploration rate
     epsilon_end: float = 0.05       # final exploration rate
-    epsilon_decay_episodes: int = 300  # how quickly we decay ε
+    epsilon_decay_episodes: int = 300  # how quickly we decay epsilon
 
 
 @dataclass
