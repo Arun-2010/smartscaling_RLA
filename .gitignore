@@ -1,0 +1,14 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Python build metadata
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editor files
+.vscode/
+.cursor/
