@@ -47,5 +47,9 @@ def plot_episode_rewards(episode_rewards: List[float], window: int = 10) -> None
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    output_file = "training_results.png"
+    plt.savefig(output_file)
+    print(f"\n[PLOTTING] Saved training plot to {output_file}")
+    plt.close()
 
