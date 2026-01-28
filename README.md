@@ -1,5 +1,5 @@
 smartscaling_RLA
-<small>
+<p>
 smartscaling_RLA 📌 Project Overview This project demonstrates how Reinforcement Learning (RL) can be used to 
 perform automatic cloud resource scaling in a simulated environment. Instead of using fixed rule-based autoscaling 
 (like CPU > 80%), we train an RL agent that learns optimal scaling decisions based on system performance and cost. 
@@ -11,7 +11,7 @@ Observes system metrics Takes scaling actions Learns from rewards and penalties 
 divided into three simple components: Fake Cloud Environment Simulates traffic, CPU usage, latency, and servers RL 
 Agent (Brain) Learns when to scale up or down Optimizes performance and cost Dashboard (Visualization) Shows CPU 
 trends, server count, and agent actions
-</small>
+</p>
 ================
 
 A beginner-friendly Reinforcement Learning project that learns how to auto-scale cloud servers using **tabular Q-learning** (not deep RL).
