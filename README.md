@@ -1,1 +1,55 @@
-smartscaling_RLA 📌 Project Overview This project demonstrates how Reinforcement Learning (RL) can be used to perform automatic cloud resource scaling in a simulated environment. Instead of using fixed rule-based autoscaling (like CPU > 80%), we train an RL agent that learns optimal scaling decisions based on system performance and cost. ⚠️ Note: This is a simulation, not a real cloud system like AWS or Kubernetes. The goal is to prove intelligence and learning, not infrastructure deployment. 🎯 Problem Statement Traditional autoscaling systems use static rules such as: Scale up if CPU > 80% Scale down if CPU < 40% These rules: Do not adapt to changing workloads Can cause over-provisioning or SLA violations This project solves the problem by using a Reinforcement Learning agent that: Observes system metrics Takes scaling actions Learns from rewards and penalties 🧠 Solution Approach The system is divided into three simple components: Fake Cloud Environment Simulates traffic, CPU usage, latency, and servers RL Agent (Brain) Learns when to scale up or down Optimizes performance and cost Dashboard (Visualization) Shows CPU trends, server count, and agent actions
+smartscaling_RLA
+================
+
+Beginner-friendly reinforcement learning project that uses **tabular Q-learning**
+to learn an auto-scaling policy in a simple **OpenAI Gym-style** environment.
+
+## What you can do with this repo
+
+- Train a Q-learning agent to **scale up / scale down / do nothing**
+- Track and save **CPU utilization**, **server count**, and **reward per step**
+- Plot learning curves and analyze runs
+
+## Install
+
+From the project root:
+
+```bash
+pip install -e .
+```
+
+## Run (simple demo)
+
+This runs training and shows a Matplotlib plot of episode rewards:
+
+```bash
+python -m smartscaling_rla.simulation.run_simulation
+```
+
+## Run (training + metrics logging + saving) ✅
+
+This run collects and saves the metrics you asked for:
+
+- CPU utilization
+- Server count
+- Reward per step
+- Occasional debug prints
+
+Run:
+
+```bash
+python -m smartscaling_rla.training.train_qlearning
+```
+
+Outputs are saved under `runs/<timestamp>/`:
+
+- `metrics.npz` (NumPy compressed arrays)
+- `run_config.json` (configs used for reproducibility)
+
+## Project structure (key files)
+
+- **`smartscaling_rla/envs/autoscaling_env.py`**: Gym-style environment (state/action/reward)
+- **`smartscaling_rla/agents/q_learning_agent.py`**: tabular Q-learning agent
+- **`smartscaling_rla/training/train_qlearning.py`**: training + per-step logging + saving metrics
+- **`smartscaling_rla/utils/plotting.py`**: Matplotlib plotting helpers
+
